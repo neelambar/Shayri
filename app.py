@@ -511,18 +511,6 @@ def export_json():
     )
 
 
-@app.route("/export.txt")
-def export_txt():
-    rows = get_db().execute("SELECT * FROM poems ORDER BY poet, id").fetchall()
-    parts = []
-    for r in rows:
-        head = r["title"] or ""
-        parts.append("\n".join(x for x in [head, "", r["body"], "", f"— {r['poet']}" if r["poet"] else ""] if x is not None).strip())
-    stamp = datetime.now().strftime("%Y-%m-%d")
-    return Response("\n\n* * *\n\n".join(parts) + "\n", mimetype="text/plain; charset=utf-8",
-                    headers={"Content-Disposition": f"attachment; filename=shayri-{stamp}.txt"})
-
-
 @app.route("/import", methods=["GET", "POST"])
 def import_poems():
     if request.method == "GET":

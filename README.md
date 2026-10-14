@@ -10,11 +10,11 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
   - `"quoted phrase"` for exact phrases
 - Search by poet (partial name), browse poets A–Z with counts, browse tags
 - Favourites, random poem, prev/next, "more by this poet"
-- Reading view: large Devanagari serif font, adjustable size, copy, share, print
+- Reading view: poem written on a wooden slate (pure CSS), adjustable size, copy, share, print
 - Warns about duplicates (same first line) when adding
 - Draft autosave while writing a new poem; poet & tag autocomplete
-- Dark mode, mobile friendly, keyboard shortcuts (`/` search, `n` new, `r` random, ←/→)
-- Backup/restore as JSON, download everything as plain text
+- Dark mode, mobile friendly
+- Backup/restore as JSON (links on the home page)
 
 ## Run locally
     python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -28,4 +28,4 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
     sudo systemctl reload caddy
 
 Database: `/var/lib/shayri/shayri.db` (set by `SHAYRI_DB`).
-Backups: `deploy/backup.sh` (add to cron), or the "Backup (JSON)" link in the app footer.
+Backups: `deploy/backup.sh` (add to cron), or the "Backup (JSON)" link at the bottom of the home page.

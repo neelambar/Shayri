@@ -74,3 +74,10 @@
 
 {% endif %}
 {% endblock %}
+
+{% block footer %}
+<footer class="wrap footer">
+  <a href="{{ url_for('export_json') }}">Backup (JSON)</a> ·
+  <a href="{{ url_for('import_poems') }}">Import</a>
+</footer>
+{% endblock %}

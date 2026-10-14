@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ poem|title_of }}{% endblock %}
 {% block content %}
-<article class="poem" id="poem">
+<article class="slate" id="poem">
+ <span class="slate-hole" aria-hidden="true"></span>
+ <div class="slate-board">
   <div class="poem-tools">
     <button type="button" class="btn small" data-font="-1" title="Smaller text">अ−</button>
     <button type="button" class="btn small" data-font="1" title="Bigger text">अ+</button>
@@ -45,6 +47,7 @@
     <a class="btn" href="{{ url_for('random_poem') }}">🎲 Random</a>
     {% if next_id %}<a class="btn" href="{{ url_for('view', pid=next_id) }}" id="next-link">Next →</a>{% endif %}
   </div>
+ </div>
 </article>
 
 {% if more %}
