@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Import{% endblock %}
+{% block content %}
+<h1>Import poems</h1>
+<p>Upload a <b>.json</b> file created with <a href="{{ url_for('export_json') }}">Backup (JSON)</a>.
+   Poems already in your collection (same text) are skipped, so importing the same file twice is safe.</p>
+<form method="post" enctype="multipart/form-data" class="poem-form">
+  <input type="file" name="file" accept=".json,application/json" required>
+  <div class="actions"><button class="btn btn-primary">Import</button></div>
+</form>
+<details class="hint">
+  <summary>File format</summary>
+<pre>{"poems": [
+  {"title": "", "poet": "मिर्ज़ा ग़ालिब",
+   "body": "हज़ारों ख़्वाहिशें ऐसी कि हर ख़्वाहिश पे दम निकले\nबहुत निकले मिरे अरमान लेकिन फिर भी कम निकले",
+   "tags": ["ग़ज़ल"], "notes": "", "source": "", "favorite": true}
+]}</pre>
+</details>
+{% endblock %}

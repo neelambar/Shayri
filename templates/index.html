@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{% if q %}{{ q }}{% elif poet is not none %}{{ poet or 'Unknown poet' }}{% elif fav %}Favourites{% else %}All poems{% endif %}{% endblock %}
+{% block content %}
+
+{% if stats[0] == 0 %}
+  <section class="empty">
+    <h1>स्वागत है 🙏</h1>
+    <p>Your collection is empty. Start by adding your first poem.</p>
+    <p><a class="btn btn-primary" href="{{ url_for('add') }}">+ Add a poem</a>
+       <a class="btn" href="{{ url_for('import_poems') }}">Import a backup</a></p>
+  </section>
+{% else %}
+
+<form class="filters" action="{{ url_for('index') }}">
+  <input type="search" name="q" value="{{ q }}" placeholder="Words or lines (use &quot;quotes&quot; for exact phrase)" class="f-q">
+  <input type="search" name="by" value="{{ by }}" placeholder="Poet name" list="poet-list" class="f-by">
+  <datalist id="poet-list">{% for p in poets %}<option value="{{ p }}">{% endfor %}</datalist>
+  <select name="tag" aria-label="Tag">
+    <option value="">All tags</option>
+    {% for t in tags %}<option value="{{ t }}" {{ 'selected' if t == tag }}>{{ t }}</option>{% endfor %}
+  </select>
+  <select name="sort" aria-label="Sort">
+    {% for key, label in SORTS.items() %}{% if key != 'relevance' or terms %}
+      <option value="{{ key }}" {{ 'selected' if key == sort }}>{{ label }}</option>
+    {% endif %}{% endfor %}
+  </select>
+  <label class="chk"><input type="checkbox" name="fav" value="1" {{ 'checked' if fav }}> ★ only</label>
+  {% if poet is not none %}<input type="hidden" name="poet" value="{{ poet }}">{% endif %}
+  <button class="btn btn-primary">Search</button>
+</form>
+
+<div class="resultbar">
+  {% if filtering %}
+    <span><b>{{ total }}</b> poem{{ '' if total == 1 else 's' }} found
+      {% if poet is not none %} by <b>{{ poet or 'Unknown poet' }}</b>{% endif %}
+      {% if tag %} tagged <b>#{{ tag }}</b>{% endif %}
+      {% if fav %} in <b>favourites</b>{% endif %}
+    </span>
+    <a href="{{ url_for('index') }}" class="clear">✕ Clear filters</a>
+    {% if poet %}<a href="{{ url_for('random_poem', poet=poet) }}">🎲 Random by this poet</a>
+      <a href="{{ url_for('add', poet=poet) }}">+ Add by this poet</a>{% endif %}
+  {% else %}
+    <span><b>{{ stats[0] }}</b> poems · <b>{{ stats[1] }}</b> poets · <b>{{ stats[2] or 0 }}</b> favourites</span>
+  {% endif %}
+</div>
+
+{% if not poems %}
+  <section class="empty small">
+    <p>Nothing matched. Try fewer or shorter words — search ignores nukta (ज़/ज) and ँ/ं differences.</p>
+  </section>
+{% endif %}
+
+<div class="cards">
+{% for item in poems %}{% set p = item.row %}
+  <article class="card">
+    <header>
+      <a class="card-title" href="{{ url_for('view', pid=p.id, q=q or None) }}">{{ (p|title_of)|hl(terms) }}</a>
+      <form method="post" action="{{ url_for('favorite', pid=p.id) }}" class="favform">
+        <input type="hidden" name="next" value="{{ request.full_path }}">
+        <button class="star {{ 'on' if p.favorite }}" title="Favourite" aria-pressed="{{ 'true' if p.favorite else 'false' }}">★</button>
+      </form>
+    </header>
+    <a class="excerpt poem-text" href="{{ url_for('view', pid=p.id, q=q or None) }}">{% if item.cut_top %}<span class="dots">…</span>
+{% endif %}{% for line in item.lines %}{{ line|hl(terms) }}
+{% endfor %}{% if item.more %}<span class="dots">…</span>{% endif %}</a>
+    <footer>
+      {% if p.poet %}<a class="poet" href="{{ url_for('index', poet=p.poet) }}">— {{ p.poet|hl(terms) }}</a>{% else %}<span class="poet muted">— Unknown</span>{% endif %}
+      <span class="chips">{% for t in p.tags|tags %}<a class="chip" href="{{ url_for('index', tag=t) }}">#{{ t }}</a>{% endfor %}</span>
+    </footer>
+  </article>
+{% endfor %}
+</div>
+
+{% if pages > 1 %}
+<nav class="pager">
+  {% set args = request.args.to_dict() %}
+  {% if page > 1 %}<a class="btn" href="{{ url_for('index', **dict(args, page=page-1)) }}">← Previous</a>{% endif %}
+  <span>Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a class="btn" href="{{ url_for('index', **dict(args, page=page+1)) }}">Next →</a>{% endif %}
+</nav>
+{% endif %}
+
+{% endif %}
+{% endblock %}

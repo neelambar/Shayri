@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit poem' if pid else 'Add poem' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Edit poem' if pid else 'Add a new poem' }}</h1>
+
+{% if dups %}
+<div class="flash flash-error">
+  A poem starting with the same line already exists:
+  <ul>{% for d in dups %}<li><a href="{{ url_for('view', pid=d.id) }}" target="_blank">{{ d|title_of }}</a>{% if d.poet %} — {{ d.poet }}{% endif %}</li>{% endfor %}</ul>
+  Tick “Save anyway” below if this one is different.
+</div>
+{% endif %}
+
+<form method="post" class="poem-form" id="poem-form" {% if not pid %}data-draft="shayri-draft"{% endif %}>
+  <label>Poem <span class="req">*</span>
+    <textarea name="body" rows="14" required class="poem-text" placeholder="कविता / ग़ज़ल / शेर यहाँ लिखें…&#10;(line breaks are kept exactly)">{{ poem.body }}</textarea>
+  </label>
+
+  <div class="row">
+    <label>Poet
+      <input name="poet" value="{{ poem.poet }}" list="poet-list" placeholder="e.g. मिर्ज़ा ग़ालिब" autocomplete="off">
+      <datalist id="poet-list">{% for p in poets %}<option value="{{ p }}">{% endfor %}</datalist>
+    </label>
+    <label>Title <small>(optional — first line is used if empty)</small>
+      <input name="title" value="{{ poem.title }}">
+    </label>
+  </div>
+
+  <label>Tags <small>(comma separated, e.g. ग़ज़ल, इश्क़, दर्द)</small>
+    <input name="tags" id="tags-input" value="{{ poem.tags.replace(',', ', ') }}" autocomplete="off">
+  </label>
+  {% if all_tags %}
+  <div class="chips suggest">{% for t in all_tags[:40] %}<button type="button" class="chip" data-tag="{{ t }}">+ {{ t }}</button>{% endfor %}</div>
+  {% endif %}
+
+  <label>Meanings &amp; notes <small>(difficult words, background…)</small>
+    <textarea name="notes" rows="4" class="poem-text" placeholder="शब्दार्थ: ख़्वाब = सपना">{{ poem.notes }}</textarea>
+  </label>
+
+  <label>Source <small>(book, website link…)</small>
+    <input name="source" value="{{ poem.source }}">
+  </label>
+
+  <div class="row checks">
+    <label class="chk"><input type="checkbox" name="favorite" value="1" {{ 'checked' if poem.favorite }}> ★ Favourite</label>
+    {% if dups %}<label class="chk"><input type="checkbox" name="allow_duplicate" value="1"> Save anyway</label>{% endif %}
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary">Save</button>
+    {% if not pid %}<button class="btn" name="another" value="1">Save &amp; add another</button>{% endif %}
+    <a class="btn" href="{{ url_for('view', pid=pid) if pid else url_for('index') }}">Cancel</a>
+    {% if not pid %}<span class="hint draft-status"></span>{% endif %}
+  </div>
+  <p class="hint">Tip: press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to save.</p>
+</form>
+{% endblock %}
