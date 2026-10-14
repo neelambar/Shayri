@@ -1,0 +1,9 @@
+# Add to /etc/caddy/Caddyfile, then: sudo systemctl reload caddy
+# Generate the password hash with: caddy hash-password
+shayri.nilambar.com {
+    encode gzip
+    basic_auth {
+        nilambar <paste output of caddy hash-password>
+    }
+    reverse_proxy 127.0.0.1:8001
+}

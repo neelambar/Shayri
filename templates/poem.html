@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ poem|title_of }}{% endblock %}
+{% block content %}
+<article class="poem" id="poem">
+  <div class="poem-tools">
+    <button type="button" class="btn small" data-font="-1" title="Smaller text">अ−</button>
+    <button type="button" class="btn small" data-font="1" title="Bigger text">अ+</button>
+    <button type="button" class="btn small" id="copy-btn" title="Copy poem">⧉ Copy</button>
+    <button type="button" class="btn small" id="share-btn" title="Share" hidden>↗ Share</button>
+    <button type="button" class="btn small" onclick="window.print()" title="Print">⎙ Print</button>
+    <form method="post" action="{{ url_for('favorite', pid=poem.id) }}" class="favform">
+      <input type="hidden" name="next" value="{{ request.full_path }}">
+      <button class="star big {{ 'on' if poem.favorite }}" title="Favourite" aria-pressed="{{ 'true' if poem.favorite else 'false' }}">★</button>
+    </form>
+  </div>
+
+  <h1 class="poem-title">{{ (poem|title_of)|hl(terms) }}</h1>
+  <div class="poem-text poem-body" id="poem-body">{{ poem.body|hl(terms) }}</div>
+  <p class="poem-poet">
+    {% if poem.poet %}— <a href="{{ url_for('index', poet=poem.poet) }}">{{ poem.poet }}</a>{% else %}<span class="muted">— Unknown poet</span>{% endif %}
+  </p>
+
+  {% if poem.notes %}
+  <section class="notes">
+    <h2>Meanings &amp; notes</h2>
+    <div class="poem-text">{{ poem.notes|hl(terms) }}</div>
+  </section>
+  {% endif %}
+
+  <div class="meta">
+    {% for t in poem.tags|tags %}<a class="chip" href="{{ url_for('index', tag=t) }}">#{{ t }}</a>{% endfor %}
+    {% if poem.source %}<span class="source">Source:
+      {% if poem.source.startswith('http://') or poem.source.startswith('https://') %}<a href="{{ poem.source }}" rel="noopener noreferrer" target="_blank">{{ poem.source }}</a>{% else %}{{ poem.source }}{% endif %}
+    </span>{% endif %}
+    <span class="muted">Added {{ poem.created_at|date }}{% if poem.updated_at != poem.created_at %} · edited {{ poem.updated_at|date }}{% endif %}</span>
+  </div>
+
+  <div class="actions">
+    <a class="btn" href="{{ url_for('edit', pid=poem.id) }}">✎ Edit</a>
+    <form method="post" action="{{ url_for('delete', pid=poem.id) }}" class="inline" data-confirm="Delete this poem permanently?">
+      <button class="btn danger">🗑 Delete</button>
+    </form>
+    <span class="spacer"></span>
+    {% if prev_id %}<a class="btn" href="{{ url_for('view', pid=prev_id) }}" id="prev-link">← Prev</a>{% endif %}
+    <a class="btn" href="{{ url_for('random_poem') }}">🎲 Random</a>
+    {% if next_id %}<a class="btn" href="{{ url_for('view', pid=next_id) }}" id="next-link">Next →</a>{% endif %}
+  </div>
+</article>
+
+{% if more %}
+<section class="more">
+  <h2>More by {{ poem.poet }}</h2>
+  <ul>
+    {% for m in more %}<li><a href="{{ url_for('view', pid=m.id) }}">{{ m|title_of }}</a></li>{% endfor %}
+  </ul>
+  <a href="{{ url_for('index', poet=poem.poet) }}">See all →</a>
+</section>
+{% endif %}
+
+<script type="application/json" id="poem-data">{{ {"title": poem.title, "body": poem.body, "poet": poem.poet}|tojson }}</script>
+{% endblock %}

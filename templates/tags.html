@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Tags{% endblock %}
+{% block content %}
+<h1>Tags</h1>
+{% if not tags %}<p class="muted">No tags yet. Add tags like ग़ज़ल, नज़्म, इश्क़ while saving a poem.</p>{% endif %}
+<div class="tagcloud">
+  {% for t, n in tags %}
+    <a class="chip big" href="{{ url_for('index', tag=t) }}">#{{ t }} <span class="count">{{ n }}</span></a>
+  {% endfor %}
+</div>
+{% endblock %}
