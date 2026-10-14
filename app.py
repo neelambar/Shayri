@@ -357,7 +357,7 @@ def index():
 
     poems = []
     for r in rows:
-        lines, cut_top, more = excerpt(r["body"], terms)
+        lines, cut_top, more = excerpt(r["body"], terms, n=2)
         poems.append({"row": r, "lines": lines, "cut_top": cut_top, "more": more})
 
     stats = db.execute(
