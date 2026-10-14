@@ -53,20 +53,12 @@
 <div class="cards">
 {% for item in poems %}{% set p = item.row %}
   <article class="card">
-    <header>
-      <a class="card-title" href="{{ url_for('view', pid=p.id, q=q or None) }}">{{ (p|title_of)|hl(terms) }}</a>
-      <form method="post" action="{{ url_for('favorite', pid=p.id) }}" class="favform">
-        <input type="hidden" name="next" value="{{ request.full_path }}">
-        <button class="star {{ 'on' if p.favorite }}" title="Favourite" aria-pressed="{{ 'true' if p.favorite else 'false' }}">★</button>
-      </form>
-    </header>
+    {% if p.title %}<a class="card-title" href="{{ url_for('view', pid=p.id, q=q or None) }}">{{ p.title|hl(terms) }}</a>{% endif %}
     <a class="excerpt poem-text" href="{{ url_for('view', pid=p.id, q=q or None) }}">{% if item.cut_top %}<span class="dots">…</span>
-{% endif %}{% for line in item.lines %}{{ line|hl(terms) }}
-{% endfor %}{% if item.more %}<span class="dots">…</span>{% endif %}</a>
-    <footer>
-      {% if p.poet %}<a class="poet" href="{{ url_for('index', poet=p.poet) }}">— {{ p.poet|hl(terms) }}</a>{% else %}<span class="poet muted">— Unknown</span>{% endif %}
-      <span class="chips">{% for t in p.tags|tags %}<a class="chip" href="{{ url_for('index', tag=t) }}">#{{ t }}</a>{% endfor %}</span>
-    </footer>
+{% endif %}{% for line in item.lines %}{{ line|hl(terms) }}{% if not loop.last %}
+{% endif %}{% endfor %}{% if item.more %}
+<span class="dots">…</span>{% endif %}</a>
+    {% if p.poet %}<a class="poet" href="{{ url_for('index', poet=p.poet) }}">— {{ p.poet|hl(terms) }}</a>{% endif %}
   </article>
 {% endfor %}
 </div>

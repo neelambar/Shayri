@@ -93,13 +93,11 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
   padding: 14px 18px; box-shadow: var(--shadow); display: flex; flex-direction: column;
 }
-.card header { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
-.card-title { font-weight: 600; color: var(--text); font-size: 1.05rem; }
-.excerpt { display: block; color: var(--text); margin: .5rem 0; font-size: 1.08rem; flex: 1; }
+.card-title { font-weight: 600; color: var(--text); font-size: 1.05rem; margin-bottom: .3rem; }
+.excerpt { display: block; color: var(--text); margin: .2rem 0 .5rem; font-size: 1.08rem; flex: 1; }
 .excerpt:hover { text-decoration: none; }
 .dots { color: var(--muted); }
-.card footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; font-size: .92rem; }
-.poet { font-style: italic; }
+.poet { font-style: italic; font-size: .92rem; align-self: flex-end; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chip {
