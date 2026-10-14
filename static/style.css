@@ -120,7 +120,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 .empty.small { padding: 1.5rem; color: var(--muted); }
 
 /* poem text */
-.poem-text { font-family: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif; white-space: pre-wrap; line-height: 1.9; }
+.poem-text { font-family: "Kalam", "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif; white-space: pre-wrap; line-height: 1.9; }
 /* Wooden slate: pine frame (vertical grain on the sides, horizontal on the
    top/bottom rails), hanging hole, chalkboard inside. Pure CSS. */
 .slate {
@@ -177,7 +177,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 .slate-board .star.on, .slate-board .star:hover { color: var(--star); }
 .slate-board ::selection { background: rgba(243, 210, 122, .4); }
 .poem-tools { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; }
-.poem-title { font-family: "Tiro Devanagari Hindi", serif; font-size: 1.7rem; text-align: center; margin: 1rem 0 1.4rem; }
+.poem-title { font-family: "Kalam", "Tiro Devanagari Hindi", serif; font-weight: 700; font-size: 1.8rem; text-align: center; margin: 1rem 0 1.4rem; }
 .poem-body { font-size: var(--poem-size); text-align: center; overflow-wrap: anywhere; }
 .poem-poet { text-align: right; font-size: 1.1rem; font-style: italic; margin: 1.5rem 0 .5rem; }
 .notes { border-top: 1px dashed var(--line); margin-top: 1.4rem; }
@@ -195,7 +195,7 @@ form.inline { display: inline; margin: 0; }
 .poem-form label { display: flex; flex-direction: column; gap: 4px; font-weight: 600; flex: 1 1 260px; }
 .poem-form label small { font-weight: 400; }
 .poem-form label.chk { flex-direction: row; font-weight: 400; flex: 0 0 auto; }
-.poem-form textarea.poem-text { font-size: 1.15rem; line-height: 1.75; resize: vertical; }
+.poem-form textarea.poem-text { font-family: "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif; font-size: 1.15rem; line-height: 1.75; resize: vertical; }
 .row { display: flex; flex-wrap: wrap; gap: 14px; }
 .suggest { margin-top: -6px; }
 .req { color: var(--danger); }
