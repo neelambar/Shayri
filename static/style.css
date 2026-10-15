@@ -137,7 +137,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
   :root:not([data-theme="light"]) .sheet { --sheet: #1f1f1f; --text: #ececec; --muted: #9a9a9a; --line: #333; --surface: #1f1f1f; --band: #262626; }
 }
 :root[data-theme="dark"] .sheet { --sheet: #1f1f1f; --text: #ececec; --muted: #9a9a9a; --line: #333; --surface: #1f1f1f; --band: #262626; }
-.sheet .poem-text, .poem-title, .poem-body { font-family: "Hind", "Mukta", "Noto Sans Devanagari", sans-serif; font-weight: 300; }
+.sheet .poem-text, .poem-title, .poem-body { font-family: "Laila", "Mukta", "Noto Sans Devanagari", sans-serif; font-weight: 300; }
 .poem-tools { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; }
 .poem-title { font-weight: 500; font-size: 1.7rem; line-height: 1.5; text-align: center; margin: 1.2rem 0 1.8rem; }
 .poem-body { font-size: var(--poem-size); line-height: 1.85; overflow-wrap: anywhere; }
