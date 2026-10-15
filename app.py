@@ -171,6 +171,16 @@ app.jinja_env.filters["tags"] = split_tags
 app.jinja_env.globals["SORTS"] = SORTS
 
 
+def stanzas(body):
+    """Split a poem into stanzas (lists of lines) at blank lines."""
+    out = []
+    for block in re.split(r"\n\s*\n", (body or "").strip()):
+        lines = [line.strip() for line in block.split("\n") if line.strip()]
+        if lines:
+            out.append(lines)
+    return out
+
+
 @app.template_filter("title_of")
 def title_of(poem):
     return poem["title"] or first_line(poem["body"]) or "(untitled)"
@@ -381,8 +391,12 @@ def view(pid):
         (poem["poet"], pid)).fetchall()
     prev_id = db.execute("SELECT max(id) FROM poems WHERE id<?", (pid,)).fetchone()[0]
     next_id = db.execute("SELECT min(id) FROM poems WHERE id>?", (pid,)).fetchone()[0]
+    verses = stanzas(poem["body"])
+    # ghazal / sher: every stanza is a couplet, so lines are spread to equal width
+    couplets = bool(verses) and all(len(st) == 2 for st in verses)
     return render_template("poem.html", poem=poem, terms=terms, more=more,
-                           prev_id=prev_id, next_id=next_id)
+                           prev_id=prev_id, next_id=next_id,
+                           verses=verses, couplets=couplets)
 
 
 def form_data():

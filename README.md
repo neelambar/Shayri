@@ -10,7 +10,7 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
   - `"quoted phrase"` for exact phrases
 - Search by poet (partial name), browse poets A–Z with counts, browse tags
 - Favourites, random poem, prev/next, "more by this poet"
-- Reading view: poem written on a wooden slate (pure CSS), adjustable size, copy, share, print
+- Reading view: clean white sheet; ghazal couplets spread to equal width on alternating bands; adjustable size, copy, share, print
 - Warns about duplicates (same first line) when adding
 - Draft autosave while writing a new poem; poet & tag autocomplete
 - Dark mode, mobile friendly

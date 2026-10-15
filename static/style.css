@@ -121,65 +121,36 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 
 /* poem text */
 .poem-text { font-family: "Kalam", "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif; white-space: pre-wrap; line-height: 1.9; }
-/* Wooden slate: pine frame (vertical grain on the sides, horizontal on the
-   top/bottom rails), hanging hole, chalkboard inside. Pure CSS. */
-.slate {
-  --wood: #e3c595;
-  --wood-dark: #c9a36c;
-  --frame-side: clamp(14px, 4vw, 30px);
-  --frame-top: clamp(38px, 7vw, 52px);
-  --frame-bottom: clamp(26px, 5vw, 40px);
-  position: relative; max-width: 820px; margin: 1.2rem auto 1.6rem;
-  padding: var(--frame-top) var(--frame-side) var(--frame-bottom);
-  border-radius: 26px;
-  background:
-    repeating-linear-gradient(90deg, transparent 0 5px, rgba(150, 100, 45, .10) 5px 6px, transparent 6px 13px, rgba(150, 100, 45, .06) 13px 15px),
-    repeating-linear-gradient(90deg, transparent 0 37px, rgba(140, 90, 40, .12) 37px 39px, transparent 39px 61px),
-    linear-gradient(90deg, var(--wood-dark), var(--wood) 6%, #ead0a4 50%, var(--wood) 94%, var(--wood-dark));
-  box-shadow: 0 10px 24px rgba(60, 35, 10, .28), 0 2px 4px rgba(60, 35, 10, .2),
-              inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -2px 3px rgba(110, 70, 30, .3);
+/* Poem page: a plain white sheet with black text, laid out like a printed
+   anthology. Couplets (ghazal / sher) are spread to equal width, with every
+   other couplet on a faint band. */
+.sheet {
+  --sheet: #fff; --text: #111; --muted: #6b6b6b; --line: #e5e5e5;
+  --surface: #fff; --band: #f6f6f6;
+  position: relative; max-width: 820px; margin: 1.2rem auto 1.6rem; overflow: hidden;
+  padding: 18px clamp(16px, 6vw, 64px) 22px;
+  background: var(--sheet); color: var(--text);
+  border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 12px 32px rgba(0, 0, 0, .06);
 }
-/* top and bottom rails with horizontal grain */
-.slate::before, .slate::after {
-  content: ""; position: absolute; left: var(--frame-side); right: var(--frame-side);
-  background:
-    repeating-linear-gradient(0deg, transparent 0 4px, rgba(150, 100, 45, .11) 4px 5px, transparent 5px 9px),
-    radial-gradient(ellipse 60% 140% at 30% 50%, transparent 58%, rgba(140, 90, 40, .13) 60%, transparent 63%),
-    radial-gradient(ellipse 50% 120% at 75% 40%, transparent 55%, rgba(140, 90, 40, .10) 57%, transparent 60%),
-    linear-gradient(180deg, #ead0a4, var(--wood));
-  box-shadow: -1px 0 0 rgba(120, 80, 35, .35), 1px 0 0 rgba(120, 80, 35, .35);
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .sheet { --sheet: #1f1f1f; --text: #ececec; --muted: #9a9a9a; --line: #333; --surface: #1f1f1f; --band: #262626; }
 }
-.slate::before { top: 0; height: var(--frame-top); border-radius: 0; box-shadow: -1px 0 0 rgba(120, 80, 35, .35), 1px 0 0 rgba(120, 80, 35, .35), inset 0 1px 0 rgba(255, 255, 255, .45); }
-.slate::after  { bottom: 0; height: var(--frame-bottom); }
-.slate-hole {
-  position: absolute; z-index: 2; top: calc(var(--frame-top) / 2 - 11px); left: 50%; transform: translateX(-50%);
-  width: 22px; height: 22px; border-radius: 50%; background: var(--bg);
-  box-shadow: inset 0 3px 4px rgba(60, 35, 10, .55), 0 1px 0 rgba(255, 255, 255, .5);
-}
-.slate-board {
-  /* chalk palette for everything drawn on the board */
-  --text: #f2efe6; --muted: rgba(242, 239, 230, .62); --line: rgba(242, 239, 230, .28);
-  --surface: transparent; --accent: #f3d27a; --accent-soft: rgba(242, 239, 230, .12);
-  --mark: rgba(243, 210, 122, .38); --danger: #ff9d90; --star: #f3c94a;
-  position: relative; z-index: 1; color: var(--text);
-  padding: 20px clamp(16px, 5vw, 52px) 18px;
-  border-radius: 3px;
-  background:
-    radial-gradient(ellipse at 22% 28%, rgba(255, 255, 255, .06), transparent 55%),
-    radial-gradient(ellipse at 78% 72%, rgba(255, 255, 255, .045), transparent 50%),
-    radial-gradient(ellipse at 60% 15%, rgba(255, 255, 255, .03), transparent 40%),
-    #26292b;
-  box-shadow: 0 0 0 1px rgba(90, 60, 25, .5), inset 0 2px 10px rgba(0, 0, 0, .65), inset 0 0 0 2px #1b1d1e;
-}
-.slate-board .poem-title, .slate-board .poem-body { text-shadow: 0 0 1px rgba(255, 255, 255, .35); }
-.slate-board .btn:hover { border-color: var(--accent); }
-.slate-board .star { color: rgba(242, 239, 230, .3); }
-.slate-board .star.on, .slate-board .star:hover { color: var(--star); }
-.slate-board ::selection { background: rgba(243, 210, 122, .4); }
+:root[data-theme="dark"] .sheet { --sheet: #1f1f1f; --text: #ececec; --muted: #9a9a9a; --line: #333; --surface: #1f1f1f; --band: #262626; }
+.sheet .poem-text, .poem-title, .poem-body { font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif; }
 .poem-tools { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; }
-.poem-title { font-family: "Kalam", "Tiro Devanagari Hindi", serif; font-weight: 700; font-size: 1.8rem; text-align: center; margin: 1rem 0 1.4rem; }
-.poem-body { font-size: var(--poem-size); text-align: center; overflow-wrap: anywhere; }
-.poem-poet { text-align: right; font-size: 1.1rem; font-style: italic; margin: 1.5rem 0 .5rem; }
+.poem-title { font-weight: 600; font-size: 1.7rem; line-height: 1.5; text-align: center; margin: 1.2rem 0 1.8rem; }
+.poem-body { font-size: var(--poem-size); line-height: 2.1; overflow-wrap: anywhere; }
+/* the verse block is as wide as its longest line and centred on the sheet */
+.verse { width: fit-content; max-width: 100%; margin: 0 auto; }
+.stanza { margin: 0 0 1.5em; }
+.stanza:last-child { margin-bottom: 0; }
+.line { margin: 0; }
+.couplets .stanza { margin: 0; padding: .55em 0; }
+.couplets .stanza:nth-child(even) { background: var(--band); box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(0 -100vmax); }
+.couplets .line { text-align: justify; text-align-last: justify; }
+.poem-poet { text-align: right; font-size: 1.05rem; color: var(--muted); margin: 2rem 0 .5rem; }
+.poem-poet a { color: var(--text); font-weight: 600; }
 .notes { border-top: 1px dashed var(--line); margin-top: 1.4rem; }
 .notes .poem-text { font-size: 1rem; line-height: 1.7; }
 .meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 1rem; font-size: .9rem; }
@@ -218,11 +189,8 @@ pre { background: var(--surface); border: 1px solid var(--line); border-radius: 
 }
 
 @media print {
-  .topbar, .footer, .poem-tools, .actions, .more, .flash, .slate-hole { display: none !important; }
+  .topbar, .footer, .poem-tools, .actions, .more, .flash { display: none !important; }
   body { background: #fff; color: #000; }
-  .slate, .slate-board { background: none; box-shadow: none; padding: 0; }
-  .slate::before, .slate::after { display: none; }
-  .slate-board { --text: #000; --muted: #555; --accent: #000; }
-  .slate-board .poem-title, .slate-board .poem-body { text-shadow: none; }
+  .sheet { --sheet: #fff; --text: #000; --muted: #555; --band: #f3f3f3; border: 0; box-shadow: none; padding: 0; }
   mark { background: none; }
 }

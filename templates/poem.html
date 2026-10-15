@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ poem|title_of }}{% endblock %}
 {% block content %}
-<article class="slate" id="poem">
- <span class="slate-hole" aria-hidden="true"></span>
- <div class="slate-board">
+<article class="sheet" id="poem">
   <div class="poem-tools">
     <button type="button" class="btn small" data-font="-1" title="Smaller text">अ−</button>
     <button type="button" class="btn small" data-font="1" title="Bigger text">अ+</button>
@@ -17,7 +15,12 @@
   </div>
 
   <h1 class="poem-title">{{ (poem|title_of)|hl(terms) }}</h1>
-  <div class="poem-text poem-body" id="poem-body">{{ poem.body|hl(terms) }}</div>
+  <div class="poem-body{{ ' couplets' if couplets }}" id="poem-body">
+   <div class="verse">
+    {% for st in verses %}<div class="stanza">{% for line in st %}<p class="line">{{ line|hl(terms) }}</p>{% endfor %}</div>
+    {% endfor %}
+   </div>
+  </div>
   <p class="poem-poet">
     {% if poem.poet %}— <a href="{{ url_for('index', poet=poem.poet) }}">{{ poem.poet }}</a>{% else %}<span class="muted">— Unknown poet</span>{% endif %}
   </p>
@@ -47,7 +50,6 @@
     <a class="btn" href="{{ url_for('random_poem') }}">🎲 Random</a>
     {% if next_id %}<a class="btn" href="{{ url_for('view', pid=next_id) }}" id="next-link">Next →</a>{% endif %}
   </div>
- </div>
 </article>
 
 {% if more %}
