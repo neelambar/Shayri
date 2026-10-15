@@ -152,8 +152,8 @@ def dup_key(body):
 
 
 def excerpt(body, terms, n=4):
-    """First n lines, or n lines around the first search hit."""
-    lines = (body or "").split("\n")
+    """First n lines, or n lines around the first search hit (blank lines skipped)."""
+    lines = [line for line in (body or "").split("\n") if line.strip()]
     start = 0
     pat = term_regex(terms or [])
     if pat:
