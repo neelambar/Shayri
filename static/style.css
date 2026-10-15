@@ -140,13 +140,13 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 .sheet .poem-text, .poem-title, .poem-body { font-family: "Noto Serif Devanagari", "Tiro Devanagari Hindi", serif; }
 .poem-tools { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; }
 .poem-title { font-weight: 600; font-size: 1.7rem; line-height: 1.5; text-align: center; margin: 1.2rem 0 1.8rem; }
-.poem-body { font-size: var(--poem-size); line-height: 2.1; overflow-wrap: anywhere; }
+.poem-body { font-size: var(--poem-size); line-height: 1.85; overflow-wrap: anywhere; }
 /* the verse block is as wide as its longest line and centred on the sheet */
 .verse { width: fit-content; max-width: 100%; margin: 0 auto; }
-.stanza { margin: 0 0 1.5em; }
+.stanza { margin: 0 0 1.1em; }
 .stanza:last-child { margin-bottom: 0; }
 .line { margin: 0; }
-.couplets .stanza { margin: 0; padding: .55em 0; }
+.couplets .stanza { margin: 0; padding: .4em 0; }
 .couplets .stanza:nth-child(even) { background: var(--band); box-shadow: 0 0 0 100vmax var(--band); clip-path: inset(0 -100vmax); }
 .couplets .line { text-align: justify; text-align-last: justify; }
 .poem-poet { text-align: right; font-size: 1.05rem; color: var(--muted); margin: 2rem 0 .5rem; }

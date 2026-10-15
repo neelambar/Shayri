@@ -178,6 +178,9 @@ def stanzas(body):
         lines = [line.strip() for line in block.split("\n") if line.strip()]
         if lines:
             out.append(lines)
+    # A blank line after every line (common in imported poems): read as couplets
+    if len(out) > 1 and all(len(st) == 1 for st in out):
+        out = [sum(out[i:i + 2], []) for i in range(0, len(out), 2)]
     return out
 
 
@@ -393,7 +396,8 @@ def view(pid):
     next_id = db.execute("SELECT min(id) FROM poems WHERE id>?", (pid,)).fetchone()[0]
     verses = stanzas(poem["body"])
     # ghazal / sher: every stanza is a couplet, so lines are spread to equal width
-    couplets = bool(verses) and all(len(st) == 2 for st in verses)
+    couplets = (len(verses) > 0 and all(len(st) == 2 for st in verses[:-1])
+                and len(verses[-1]) in (1, 2) and len(verses[0]) == 2)
     return render_template("poem.html", poem=poem, terms=terms, more=more,
                            prev_id=prev_id, next_id=next_id,
                            verses=verses, couplets=couplets)
