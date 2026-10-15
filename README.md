@@ -31,7 +31,7 @@ Database: `/var/lib/shayri/shayri.db` (set by `SHAYRI_DB`).
 Backups: `deploy/backup.sh` (add to cron), or the "Backup (JSON)" link at the bottom of the home page.
 
 ## Bulk import from Excel
-For a sheet with columns `POET`, `TITLE`, `TEXT` (HTML like `<p>`/`<br />` in TEXT is converted to lines; ` / poet` is stripped from titles; duplicates are skipped):
+For an .xlsx or .csv file with columns `POET`, `TITLE`, `TEXT`: the HTML in TEXT becomes plain lines with real stanza breaks, `<sup>` footnote markers become superscript digits (tap to see the meaning), a `शब्दार्थ:` glossary moves to notes, ` / poet` is stripped from titles, scraped web pages and duplicates are skipped:
 
-    .venv/bin/python import_excel.py poems.xlsx --dry-run --show 3   # preview
-    SHAYRI_DB=/var/lib/shayri/shayri.db .venv/bin/python import_excel.py poems.xlsx
+    .venv/bin/python import_excel.py poems.csv --dry-run --show 3   # preview
+    SHAYRI_DB=/var/lib/shayri/shayri.db .venv/bin/python import_excel.py poems.csv

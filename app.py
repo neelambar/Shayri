@@ -84,9 +84,36 @@ def fold(s):
 
     Hindi/Urdu poetry is typed inconsistently, so search should not care.
     """
-    s = unicodedata.normalize("NFD", s or "")
+    s = unicodedata.normalize("NFD", (s or "").translate(NO_SUPERSCRIPT))
     s = s.replace("़", "").replace("ँ", "ं")
     return unicodedata.normalize("NFC", s).casefold()
+
+
+# Footnote markers are stored as superscript digits: तलबगार¹
+SUPERSCRIPTS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+NO_SUPERSCRIPT = str.maketrans("", "", SUPERSCRIPTS)
+FOOTNOTE = re.compile(f"[{SUPERSCRIPTS}]+")
+
+
+def glossary(notes):
+    """Numbered notes ("1. तलबगार= इच्छुक") as {number: text}."""
+    out = {}
+    for line in (notes or "").split("\n"):
+        m = re.match(r"\s*(\d{1,3})\s*[.)]\s*(.+)", line)
+        if m:
+            out.setdefault(m.group(1), m.group(2).strip())
+    return out
+
+
+def footnotes(html, gloss):
+    """Turn superscript markers in rendered text into <sup> with the meaning."""
+    def sup(m):
+        n = m.group().translate(str.maketrans(SUPERSCRIPTS, "0123456789"))
+        tip = gloss.get(n)
+        if not tip:
+            return Markup('<sup class="fn">%s</sup>') % n
+        return Markup('<sup class="fn" tabindex="0" data-tip="%s">%s</sup>') % (tip, n)
+    return Markup(FOOTNOTE.sub(lambda m: str(sup(m)), str(html)))
 
 
 def term_regex(terms):
@@ -167,6 +194,7 @@ def excerpt(body, terms, n=4):
 
 
 app.jinja_env.filters["hl"] = highlight
+app.jinja_env.filters["footnotes"] = footnotes
 app.jinja_env.filters["tags"] = split_tags
 app.jinja_env.globals["SORTS"] = SORTS
 
@@ -178,9 +206,6 @@ def stanzas(body):
         lines = [line.strip() for line in block.split("\n") if line.strip()]
         if lines:
             out.append(lines)
-    # A blank line after every line (common in imported poems): read as couplets
-    if len(out) > 1 and all(len(st) == 1 for st in out):
-        out = [sum(out[i:i + 2], []) for i in range(0, len(out), 2)]
     return out
 
 
@@ -400,7 +425,8 @@ def view(pid):
                 and len(verses[-1]) in (1, 2) and len(verses[0]) == 2)
     return render_template("poem.html", poem=poem, terms=terms, more=more,
                            prev_id=prev_id, next_id=next_id,
-                           verses=verses, couplets=couplets)
+                           verses=verses, couplets=couplets,
+                           gloss=glossary(poem["notes"]))
 
 
 def form_data():

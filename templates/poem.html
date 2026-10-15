@@ -17,7 +17,7 @@
   <h1 class="poem-title">{{ (poem|title_of)|hl(terms) }}</h1>
   <div class="poem-body{{ ' couplets' if couplets }}" id="poem-body">
    <div class="verse">
-    {% for st in verses %}<div class="stanza">{% for line in st %}<p class="line">{{ line|hl(terms) }}</p>{% endfor %}</div>
+    {% for st in verses %}<div class="stanza">{% for line in st %}<p class="line">{{ line|hl(terms)|footnotes(gloss) }}</p>{% endfor %}</div>
     {% endfor %}
    </div>
   </div>
