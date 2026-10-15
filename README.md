@@ -29,3 +29,9 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
 
 Database: `/var/lib/shayri/shayri.db` (set by `SHAYRI_DB`).
 Backups: `deploy/backup.sh` (add to cron), or the "Backup (JSON)" link at the bottom of the home page.
+
+## Bulk import from Excel
+For a sheet with columns `POET`, `TITLE`, `TEXT` (HTML like `<p>`/`<br />` in TEXT is converted to lines; ` / poet` is stripped from titles; duplicates are skipped):
+
+    .venv/bin/python import_excel.py poems.xlsx --dry-run --show 3   # preview
+    SHAYRI_DB=/var/lib/shayri/shayri.db .venv/bin/python import_excel.py poems.xlsx
