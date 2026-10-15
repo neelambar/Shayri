@@ -23,6 +23,7 @@ from app import clean, fold
 # Rows that are a whole scraped web page (scripts, menus), not a poem
 JUNK = re.compile(r"<script|<html|<head\b|wgServer", re.IGNORECASE)
 DROP = re.compile(r"<!--.*?-->|<(script|style)\b.*?</\1\s*>", re.IGNORECASE | re.DOTALL)
+PRE = re.compile(r"<pre\b[^>]*>(.*?)</pre\s*>", re.IGNORECASE | re.DOTALL)
 SUP = re.compile(r"<sup\b[^>]*>(.*?)</sup\s*>", re.IGNORECASE | re.DOTALL)
 REFS = re.compile(r"<ol\b[^>]*references[^>]*>(.*?)</ol\s*>", re.IGNORECASE | re.DOTALL)
 LI = re.compile(r"<li\b[^>]*>(.*?)</li\s*>", re.IGNORECASE | re.DOTALL)
@@ -59,7 +60,9 @@ def html_to_poem(s):
     if JUNK.search(s):
         return None
     s = DROP.sub("", s)
-    s = re.sub(r"\s+", " ", s)  # source newlines are just HTML whitespace
+    # inside <pre> source newlines are line breaks; elsewhere just HTML whitespace
+    s = PRE.sub(lambda m: "<p>" + m.group(1).replace("\n", "<br />") + "</p>", s)
+    s = re.sub(r"\s+", " ", s)
     s = SUP.sub(_footnote, s)
     s = REFS.sub(_references, s)
     s = BR.sub(LINE, s)
@@ -101,12 +104,14 @@ def html_to_poem(s):
 
 
 def clean_title(title, poet):
+    """Drop the poet from "Title / Poet" or "Title / Poet / Part 1"."""
     title = clean(html.unescape(str(title or "")).replace("\xa0", " "))
-    if poet and title.endswith("/ " + poet):
-        title = title[: -len(poet) - 2].rstrip(" /")
-    elif " / " in title:  # poet spelled differently in the title
-        title = title.rsplit(" / ", 1)[0]
-    return " ".join(title.split())
+    parts = [" ".join(p.split()) for p in re.split(r"\s+/\s*|\s*/\s+", title)]
+    if poet and poet in parts[1:]:
+        del parts[len(parts) - 1 - parts[::-1].index(poet)]
+    elif len(parts) > 1:  # poet spelled differently in the title
+        parts.pop()
+    return " / ".join(parts)
 
 
 def raw_rows(path):
