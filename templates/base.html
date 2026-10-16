@@ -4,20 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}शायरी{% endblock %} · शायरी संग्रह</title>
+<meta name="title-en" content="{% block title_en %}{{ self.title()|replace('शायरी', 'Shayri') }}{% endblock %} · Shayri Sangrah">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Laila:wght@400;600&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=13">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=14">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✒️</text></svg>">
 <script>
   try { var t = localStorage.getItem('shayri-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   try { if (localStorage.getItem('shayri-script') === 'en') document.documentElement.dataset.script = 'en'; } catch (e) {}
+  var titleHi = document.title;
+  function setTitle() {
+    var m = document.querySelector('meta[name="title-en"]');
+    document.title = document.documentElement.dataset.script === 'en' && m ? m.content : titleHi;
+  }
+  document.addEventListener('DOMContentLoaded', setTitle);
 </script>
 </head>
 <body>
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="{{ url_for('index') }}">शायरी <span>संग्रह</span></a>
+    <a class="brand" href="{{ url_for('index') }}"><span class="hi">शायरी <span class="sub">संग्रह</span></span><span class="en">Shayri <span class="sub">Sangrah</span></span></a>
     <form class="topsearch" action="{{ url_for('index') }}" role="search">
       <input type="search" name="q" value="{{ q or '' }}" placeholder="Search poems, poets, words…" aria-label="Search" id="topsearch">
     </form>
@@ -41,6 +48,6 @@
 </main>
 
 {% block footer %}{% endblock %}
-<script src="{{ url_for('static', filename='app.js') }}?v=2"></script>
+<script src="{{ url_for('static', filename='app.js') }}?v=3"></script>
 </body>
 </html>

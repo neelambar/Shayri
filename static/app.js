@@ -25,6 +25,7 @@
     const root = document.documentElement;
     if (isEnglish()) delete root.dataset.script; else root.dataset.script = "en";
     store.set("shayri-script", isEnglish() ? "en" : null);
+    if (window.setTitle) window.setTitle();
   });
 
   // Keyboard shortcuts

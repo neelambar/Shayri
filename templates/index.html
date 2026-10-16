@@ -41,6 +41,7 @@
       <a href="{{ url_for('add', poet=poet) }}">+ Add by this poet</a>{% endif %}
   {% else %}
     <span><b>{{ stats[0] }}</b> poems · <b>{{ stats[1] }}</b> poets · <b>{{ stats[2] or 0 }}</b> favourites</span>
+    {% if sort == 'random' %}<a href="{{ url_for('index') }}">🔀 Shuffle again</a>{% endif %}
   {% endif %}
 </div>
 
@@ -66,7 +67,7 @@
 
 {% if pages > 1 %}
 <nav class="pager">
-  {% set args = request.args.to_dict() %}
+  {% set args = dict(request.args.to_dict(), **({'seed': seed} if sort == 'random' else {})) %}
   {% if page > 1 %}<a class="btn" href="{{ url_for('index', **dict(args, page=page-1)) }}">← Previous</a>{% endif %}
   <span>Page {{ page }} of {{ pages }}</span>
   {% if page < pages %}<a class="btn" href="{{ url_for('index', **dict(args, page=page+1)) }}">Next →</a>{% endif %}

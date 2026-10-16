@@ -26,6 +26,7 @@ PER_PAGE = 20
 
 SORTS = {
     "relevance": "Best match",
+    "random": "Surprise me",
     "new": "Newest first",
     "old": "Oldest first",
     "updated": "Recently edited",
@@ -380,9 +381,14 @@ def index():
     tag = request.args.get("tag", "").strip()
     fav = request.args.get("fav") == "1"
     terms = parse_terms(q)
-    sort = request.args.get("sort") or ("relevance" if terms else "new")
+    filtering = bool(terms or by or poet is not None or tag or fav)
+    # home page: a fresh shuffle on every visit; the seed keeps paging stable
+    sort = request.args.get("sort") or ("relevance" if terms else "new" if filtering else "random")
     if sort not in SORTS or (sort == "relevance" and not terms):
         sort = "new"
+    seed = request.args.get("seed", type=int)
+    if sort == "random" and not seed:
+        seed = random.randrange(1, 1_000_003)
     page = max(1, request.args.get("page", 1, type=int))
 
     joins, conds, params = [], [], []
@@ -414,6 +420,8 @@ def index():
     base = f"FROM poems p {' '.join(joins)}{where}"
     order = {
         "relevance": "bm25(poems_fts), p.id DESC" if long_terms else "p.id DESC",
+        # squared after scaling, so neighbouring ids don't stay in step
+        "random": f"((p.id * {int(seed or 1)} % 1000003) * (p.id * {int(seed or 1)} % 1000003) + {int(seed or 1)}) % 1000003, p.id",
         "new": "p.created_at DESC, p.id DESC",
         "old": "p.created_at ASC, p.id ASC",
         "updated": "p.updated_at DESC",
@@ -435,10 +443,9 @@ def index():
 
     stats = db.execute(
         "SELECT COUNT(*), COUNT(DISTINCT NULLIF(poet,'')), SUM(favorite) FROM poems").fetchone()
-    filtering = bool(terms or by or poet is not None or tag or fav)
     return render_template(
         "index.html", poems=poems, total=total, page=page, pages=pages,
-        q=q, by=by, poet=poet, tag=tag, fav=fav, sort=sort, terms=terms,
+        q=q, by=by, poet=poet, tag=tag, fav=fav, sort=sort, terms=terms, seed=seed,
         filtering=filtering, stats=stats, poets=all_poets(db),
         tags=[t for t, _ in tag_counts(db)],
     )
