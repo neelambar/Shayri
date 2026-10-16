@@ -72,6 +72,9 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); ou
 .btn.danger { color: var(--danger); }
 .btn.danger:hover { border-color: var(--danger); }
 .theme-toggle { background: none; border: 0; font-size: 1.2rem; cursor: pointer; color: var(--text); }
+.script-toggle { background: none; border: 1px solid var(--muted); border-radius: 6px; min-width: 2rem; padding: 0 .4rem; font-size: 1rem; line-height: 1.6; cursor: pointer; color: var(--text); }
+/* Hindi / English letters: both are rendered, one is shown */
+html[data-script="en"] .hi, html:not([data-script="en"]) .en { display: none !important; }
 .chk { display: inline-flex; align-items: center; gap: .35em; white-space: nowrap; }
 
 .flash { padding: .7em 1em; border-radius: 8px; margin: 1rem 0; background: var(--accent-soft); }

@@ -46,19 +46,20 @@
 
 {% if not poems %}
   <section class="empty small">
-    <p>Nothing matched. Try fewer or shorter words — search ignores nukta (ज़/ज) and ँ/ं differences.</p>
+    <p>Nothing matched. Try fewer or shorter words — search ignores nukta (ज़/ज) and ँ/ं differences, and English spellings (kaun, zindagi) work too.</p>
   </section>
 {% endif %}
 
 <div class="cards">
 {% for item in poems %}{% set p = item.row %}
   <article class="card">
-    {% if p.title %}<a class="card-title" href="{{ url_for('view', pid=p.id, q=q or None) }}">{{ p.title|hl(terms) }}</a>{% endif %}
+    {% if p.title %}<a class="card-title" href="{{ url_for('view', pid=p.id, q=q or None) }}"><span class="hi">{{ p.title|hl(terms) }}</span><span class="en">{{ en(p, 'title')|hl(terms) }}</span></a>{% endif %}
     <a class="excerpt poem-text" href="{{ url_for('view', pid=p.id, q=q or None) }}">{% if item.cut_top %}<span class="dots">…</span>
-{% endif %}{% for line in item.lines %}{{ line|hl(terms) }}{% if not loop.last %}
-{% endif %}{% endfor %}{% if item.more %}
+{% endif %}<span class="hi">{% for line in item.lines %}{{ line|hl(terms) }}{% if not loop.last %}
+{% endif %}{% endfor %}</span><span class="en">{% for line in item.lines_en %}{{ line|hl(terms) }}{% if not loop.last %}
+{% endif %}{% endfor %}</span>{% if item.more %}
 <span class="dots">…</span>{% endif %}</a>
-    {% if p.poet %}<a class="poet" href="{{ url_for('index', poet=p.poet) }}">— {{ p.poet|hl(terms) }}</a>{% endif %}
+    {% if p.poet %}<a class="poet" href="{{ url_for('index', poet=p.poet) }}">— <span class="hi">{{ p.poet|hl(terms) }}</span><span class="en">{{ en(p, 'poet')|hl(terms) }}</span></a>{% endif %}
   </article>
 {% endfor %}
 </div>

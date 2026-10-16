@@ -18,6 +18,8 @@ from flask import (Flask, Response, abort, flash, g, jsonify, redirect,
                    render_template, request, url_for)
 from markupsafe import Markup, escape
 
+import translit
+
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = os.environ.get("SHAYRI_DB", str(BASE_DIR / "shayri.db"))
 PER_PAGE = 20
@@ -42,7 +44,11 @@ CREATE TABLE IF NOT EXISTS poems (
     source      TEXT NOT NULL DEFAULT '',   -- book, link, etc.
     favorite    INTEGER NOT NULL DEFAULT 0,
     created_at  TEXT NOT NULL,
-    updated_at  TEXT NOT NULL
+    updated_at  TEXT NOT NULL,
+    title_en    TEXT,                       -- English-letter (Hinglish) copies,
+    poet_en     TEXT,                       -- made by translit.py on save
+    body_en     TEXT,
+    translit_v  INTEGER                     -- translit.VERSION that made them
 );
 CREATE INDEX IF NOT EXISTS poems_poet ON poems(poet);
 -- Search index holds a "folded" copy of the text (see fold()). The trigram
@@ -54,6 +60,7 @@ CREATE VIRTUAL TABLE IF NOT EXISTS poems_fts USING fts5(
 """
 
 FTS_COLS = ("title", "poet", "body", "tags", "notes")
+LATIN_COLS = ("title_en", "poet_en", "body_en", "translit_v")
 
 
 def _secret_key():
@@ -178,19 +185,26 @@ def dup_key(body):
     return " ".join(fold(first_line(body)).split())
 
 
-def excerpt(body, terms, n=4):
-    """First n lines, or n lines around the first search hit (blank lines skipped)."""
-    lines = [line for line in (body or "").split("\n") if line.strip()]
+def excerpt(body, terms, n=4, body_en=""):
+    """First n lines, or n lines around the first search hit (blank lines skipped).
+
+    Returns the Hindi lines and the matching English lines.
+    """
+    hi = (body or "").split("\n")
+    en = (body_en or "").split("\n")
+    if len(en) != len(hi):
+        en = translit.poem_latin(body).split("\n")
+    pairs = [(h, e) for h, e in zip(hi, en) if h.strip()]
     start = 0
     pat = term_regex(terms or [])
     if pat:
-        for i, line in enumerate(lines):
-            if pat.search(unicodedata.normalize("NFD", line)):
+        for i, (h, e) in enumerate(pairs):
+            if pat.search(unicodedata.normalize("NFD", h)) or pat.search(e):
                 start = max(0, i - 1) if i >= n else 0
                 break
-    chunk = lines[start:start + n]
-    more = len(lines) > start + n
-    return chunk, start > 0, more
+    chunk = pairs[start:start + n]
+    more = len(pairs) > start + n
+    return [h for h, _ in chunk], [e for _, e in chunk], start > 0, more
 
 
 app.jinja_env.filters["hl"] = highlight
@@ -212,6 +226,20 @@ def stanzas(body):
 @app.template_filter("title_of")
 def title_of(poem):
     return poem["title"] or first_line(poem["body"]) or "(untitled)"
+
+
+@app.template_global()
+def en(poem, field):
+    """English-letter version of a poem field ("title", "poet", "body")."""
+    keys = poem.keys()
+    if f"{field}_en" in keys and poem[f"{field}_en"] is not None:
+        return poem[f"{field}_en"]
+    return translit.latin_fields({field: poem[field] if field in keys else ""})[f"{field}_en"]
+
+
+@app.template_filter("title_of_en")
+def title_of_en(poem):
+    return en(poem, "title") or first_line(en(poem, "body")) or "(untitled)"
 
 
 @app.template_filter("date")
@@ -247,15 +275,21 @@ def init_db():
     with connect() as db:
         db.execute("PRAGMA journal_mode=WAL")
         db.executescript(SCHEMA)
+        have = {r[1] for r in db.execute("PRAGMA table_info(poems)")}
+        for col in LATIN_COLS:
+            if col not in have:  # databases made before English support
+                db.execute(f"ALTER TABLE poems ADD COLUMN {col} {'INTEGER' if col == 'translit_v' else 'TEXT'}")
 
 
 def reindex(db, pid):
     row = db.execute("SELECT * FROM poems WHERE id=?", (pid,)).fetchone()
     db.execute("DELETE FROM poems_fts WHERE rowid=?", (pid,))
     if row:
+        # the English copies are indexed too, so "zindagi" or "gulzar" also finds poems
+        both = lambda f: fold(row[f]) + "\n" + fold(row[f + "_en"])
         db.execute(
             "INSERT INTO poems_fts(rowid, title, poet, body, tags, notes) VALUES (?,?,?,?,?,?)",
-            (pid, fold(row["title"]), fold(row["poet"]), fold(row["body"]),
+            (pid, both("title"), both("poet"), both("body"),
              fold(row["tags"].replace(",", " ")), fold(row["notes"])),
         )
 
@@ -265,12 +299,13 @@ def now():
 
 
 def save_poem(db, data, pid=None):
-    fields = ("title", "poet", "body", "tags", "notes", "source", "favorite")
+    data = data | translit.latin_fields(data) | {"translit_v": translit.VERSION}
+    fields = ("title", "poet", "body", "tags", "notes", "source", "favorite") + LATIN_COLS
     values = [data[f] for f in fields]
     if pid is None:
         ts = data.get("created_at") or now()
         cur = db.execute(
-            f"INSERT INTO poems ({', '.join(fields)}, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)",
+            f"INSERT INTO poems ({', '.join(fields)}, created_at, updated_at) VALUES ({', '.join('?' * (len(fields) + 2))})",
             values + [ts, data.get("updated_at") or ts],
         )
         pid = cur.lastrowid
@@ -395,8 +430,8 @@ def index():
 
     poems = []
     for r in rows:
-        lines, cut_top, more = excerpt(r["body"], terms, n=2)
-        poems.append({"row": r, "lines": lines, "cut_top": cut_top, "more": more})
+        lines, lines_en, cut_top, more = excerpt(r["body"], terms, n=2, body_en=r["body_en"])
+        poems.append({"row": r, "lines": lines, "lines_en": lines_en, "cut_top": cut_top, "more": more})
 
     stats = db.execute(
         "SELECT COUNT(*), COUNT(DISTINCT NULLIF(poet,'')), SUM(favorite) FROM poems").fetchone()
@@ -415,17 +450,18 @@ def view(pid):
     poem = get_poem(pid)
     terms = parse_terms(request.args.get("q", ""))
     more = db.execute(
-        "SELECT id, title, body FROM poems WHERE poet=? AND poet!='' AND id!=? ORDER BY random() LIMIT 8",
+        "SELECT id, title, body, title_en, body_en FROM poems WHERE poet=? AND poet!='' AND id!=? ORDER BY random() LIMIT 8",
         (poem["poet"], pid)).fetchall()
     prev_id = db.execute("SELECT max(id) FROM poems WHERE id<?", (pid,)).fetchone()[0]
     next_id = db.execute("SELECT min(id) FROM poems WHERE id>?", (pid,)).fetchone()[0]
     verses = stanzas(poem["body"])
+    verses_en = stanzas(en(poem, "body"))
     # ghazal / sher: every stanza is a couplet, so lines are spread to equal width
     couplets = (len(verses) > 0 and all(len(st) == 2 for st in verses[:-1])
                 and len(verses[-1]) in (1, 2) and len(verses[0]) == 2)
     return render_template("poem.html", poem=poem, terms=terms, more=more,
                            prev_id=prev_id, next_id=next_id,
-                           verses=verses, couplets=couplets,
+                           verses=verses, verses_en=verses_en, couplets=couplets,
                            gloss=glossary(poem["notes"]))
 
 
@@ -527,7 +563,8 @@ def random_poem():
 @app.route("/poets")
 def poets():
     rows = get_db().execute(
-        "SELECT poet, COUNT(*) AS n, SUM(favorite) AS favs FROM poems GROUP BY poet ORDER BY poet = '', poet"
+        "SELECT poet, MAX(poet_en) AS poet_en, COUNT(*) AS n, SUM(favorite) AS favs"
+        " FROM poems GROUP BY poet ORDER BY poet = '', poet"
     ).fetchall()
     groups = {}
     for r in rows:

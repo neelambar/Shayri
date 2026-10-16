@@ -13,8 +13,8 @@
   <h2>{{ letter }}</h2>
   <ul class="poet-list">
     {% for r in rows %}
-    <li data-name="{{ r.poet|lower }}">
-      <a href="{{ url_for('index', poet=r.poet) }}">{{ r.poet or 'Unknown poet' }}</a>
+    <li data-name="{{ r.poet|lower }} {{ (r.poet_en or '')|lower }}">
+      <a href="{{ url_for('index', poet=r.poet) }}">{% if r.poet %}<span class="hi">{{ r.poet }}</span><span class="en">{{ r.poet_en or r.poet }}</span>{% else %}Unknown poet{% endif %}</a>
       <span class="count">{{ r.n }}</span>{% if r.favs %}<span class="count fav">★ {{ r.favs }}</span>{% endif %}
     </li>
     {% endfor %}

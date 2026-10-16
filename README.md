@@ -8,6 +8,7 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
   - substring search (trigram index), works for Devanagari and Latin text
   - ignores nukta (ज़ = ज) and chandrabindu/anusvara (हँ = हं) differences
   - `"quoted phrase"` for exact phrases
+- Hindi / English letters switch (अ/A button in the top bar, or key `e`): every poem, title and poet name is also stored in English letters (कौन-सा → kaun-sa, ग़ज़ल → ghazal), made by `translit.py` whenever a poem is saved; English spellings are searchable too
 - Search by poet (partial name), browse poets A–Z with counts, browse tags
 - Favourites, random poem, prev/next, "more by this poet"
 - Reading view: clean white sheet; ghazal couplets spread to equal width on alternating bands; adjustable size, copy, share, print
@@ -35,3 +36,9 @@ For an .xlsx or .csv file with columns `POET`, `TITLE`, `TEXT`: the HTML in TEXT
 
     .venv/bin/python import_excel.py poems.csv --dry-run --show 3   # preview
     SHAYRI_DB=/var/lib/shayri/shayri.db .venv/bin/python import_excel.py poems.csv
+
+## English letters (transliteration)
+`translit.py` converts Devanagari to readable Roman letters with Hindi schwa rules (कमरा → kamra, समझना → samajhna, धड़कनें → dhadkanen). New and edited poems get it automatically. To fill existing poems (about a minute for 35k), or to redo all after changing the rules (bump `VERSION` first):
+
+    .venv/bin/python translit.py "कौन-सा लालच? धरा की"             # try a line
+    SHAYRI_DB=/var/lib/shayri/shayri.db .venv/bin/python translit.py --backfill [--all]

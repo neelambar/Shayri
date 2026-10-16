@@ -18,6 +18,15 @@
     store.set("shayri-theme", root.dataset.theme);
   });
 
+  // Hindi / English letters (both are in the page; CSS shows one)
+  const scriptToggle = $(".script-toggle");
+  const isEnglish = () => document.documentElement.dataset.script === "en";
+  if (scriptToggle) scriptToggle.addEventListener("click", () => {
+    const root = document.documentElement;
+    if (isEnglish()) delete root.dataset.script; else root.dataset.script = "en";
+    store.set("shayri-script", isEnglish() ? "en" : null);
+  });
+
   // Keyboard shortcuts
   document.addEventListener("keydown", (e) => {
     const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
@@ -32,6 +41,7 @@
     if (e.key === "/") { e.preventDefault(); $("#topsearch").focus(); }
     else if (e.key === "n") location.href = "/add";
     else if (e.key === "r") location.href = "/random";
+    else if (e.key === "e" && scriptToggle) scriptToggle.click();
     else if (e.key === "ArrowLeft" && $("#prev-link")) location.href = $("#prev-link").href;
     else if (e.key === "ArrowRight" && $("#next-link")) location.href = $("#next-link").href;
   });
@@ -67,15 +77,18 @@
       apply();
     }));
 
-    const data = JSON.parse($("#poem-data").textContent);
-    const text = [data.title, data.body, data.poet ? "— " + data.poet : ""].filter(Boolean).join("\n\n");
+    const both = JSON.parse($("#poem-data").textContent);
+    const textOf = () => {
+      const data = both[isEnglish() ? "en" : "hi"];
+      return [data.title, data.body, data.poet ? "— " + data.poet : ""].filter(Boolean).join("\n\n");
+    };
     const copyBtn = $("#copy-btn");
     copyBtn.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(textOf());
       } catch (e) {
         const ta = document.createElement("textarea");
-        ta.value = text; document.body.appendChild(ta); ta.select();
+        ta.value = textOf(); document.body.appendChild(ta); ta.select();
         document.execCommand("copy"); ta.remove();
       }
       const old = copyBtn.textContent;
@@ -86,7 +99,7 @@
     const shareBtn = $("#share-btn");
     if (navigator.share) {
       shareBtn.hidden = false;
-      shareBtn.addEventListener("click", () => navigator.share({ text }).catch(() => {}));
+      shareBtn.addEventListener("click", () => navigator.share({ text: textOf() }).catch(() => {}));
     }
   }
 

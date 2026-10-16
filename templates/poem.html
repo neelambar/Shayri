@@ -14,15 +14,19 @@
     </form>
   </div>
 
-  <h1 class="poem-title">{{ (poem|title_of)|hl(terms) }}</h1>
+  <h1 class="poem-title"><span class="hi">{{ (poem|title_of)|hl(terms) }}</span><span class="en" lang="hi-Latn">{{ (poem|title_of_en)|hl(terms) }}</span></h1>
   <div class="poem-body{{ ' couplets' if couplets }}" id="poem-body">
-   <div class="verse">
+   <div class="verse hi">
     {% for st in verses %}<div class="stanza">{% for line in st %}<p class="line">{{ line|hl(terms)|footnotes(gloss) }}</p>{% endfor %}</div>
+    {% endfor %}
+   </div>
+   <div class="verse en" lang="hi-Latn">
+    {% for st in verses_en %}<div class="stanza">{% for line in st %}<p class="line">{{ line|hl(terms)|footnotes(gloss) }}</p>{% endfor %}</div>
     {% endfor %}
    </div>
   </div>
   <p class="poem-poet">
-    {% if poem.poet %}— <a href="{{ url_for('index', poet=poem.poet) }}">{{ poem.poet }}</a>{% else %}<span class="muted">— Unknown poet</span>{% endif %}
+    {% if poem.poet %}— <a href="{{ url_for('index', poet=poem.poet) }}"><span class="hi">{{ poem.poet }}</span><span class="en">{{ en(poem, 'poet') }}</span></a>{% else %}<span class="muted">— Unknown poet</span>{% endif %}
   </p>
 
   {% if poem.notes %}
@@ -54,13 +58,14 @@
 
 {% if more %}
 <section class="more">
-  <h2>More by {{ poem.poet }}</h2>
+  <h2>More by <span class="hi">{{ poem.poet }}</span><span class="en">{{ en(poem, 'poet') }}</span></h2>
   <ul>
-    {% for m in more %}<li><a href="{{ url_for('view', pid=m.id) }}">{{ m|title_of }}</a></li>{% endfor %}
+    {% for m in more %}<li><a href="{{ url_for('view', pid=m.id) }}"><span class="hi">{{ m|title_of }}</span><span class="en">{{ m|title_of_en }}</span></a></li>{% endfor %}
   </ul>
   <a href="{{ url_for('index', poet=poem.poet) }}">See all →</a>
 </section>
 {% endif %}
 
-<script type="application/json" id="poem-data">{{ {"title": poem.title, "body": poem.body, "poet": poem.poet}|tojson }}</script>
+<script type="application/json" id="poem-data">{{ {"hi": {"title": poem.title, "body": poem.body, "poet": poem.poet},
+      "en": {"title": en(poem, 'title'), "body": en(poem, 'body'), "poet": en(poem, 'poet')}}|tojson }}</script>
 {% endblock %}
