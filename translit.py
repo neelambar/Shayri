@@ -13,7 +13,7 @@ Hindi "schwa deletion" rules decide which inherent "a" sounds are silent
 import re
 import unicodedata
 
-VERSION = 1  # bump when the rules change, then run --backfill --all
+VERSION = 2  # bump when the rules change, then run --backfill --all
 
 CONSONANTS = {
     "क": "k", "ख": "kh", "ग": "g", "घ": "gh", "ङ": "n",
@@ -55,7 +55,7 @@ WORDS = {
     "में": "mein", "मैं": "main", "हैं": "hain", "नहीं": "nahin", "नहिं": "nahin",
     "हूं": "hoon", "क्यों": "kyon", "क्यूं": "kyun", "यूं": "yun", "वो": "wo",
     "वहां": "vahan", "यहां": "yahan", "कहां": "kahan", "जहां": "jahan", "तहां": "tahan",
-    "हां": "haan", "मां": "maa", "तू": "tu", "तो": "to", "कि": "ki", "की": "ki",
+    "हां": "haan", "मां": "maa", "सिंह": "singh", "तू": "tu", "तो": "to", "कि": "ki", "की": "ki",
 }
 
 DEVA_RUN = re.compile(r"[ऀ-ॣॱ-ॿ‌‍]+")
@@ -141,7 +141,7 @@ def _delete_schwas(units):
 
 def _word(word, name=False):
     word = unicodedata.normalize("NFD", word)
-    if not name and _key(word) in WORDS:
+    if _key(word) in WORDS:
         return WORDS[_key(word)]
     units = _units(word)
     _delete_schwas(units)

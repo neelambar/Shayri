@@ -1,24 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Poets{% endblock %}
-{% block content %}
-<h1>Poets <small class="muted">({{ count }})</small></h1>
-<input type="search" id="poet-filter" class="filter-box" placeholder="Filter poets…" autofocus>
-
-{% if not groups %}<p class="muted">No poems yet.</p>{% endif %}
+{% macro listing(groups, script, prefix) %}
+<div class="{{ script }}">
 <div class="letters">
-  {% for letter in groups %}<a href="#L{{ loop.index }}">{{ letter }}</a>{% endfor %}
+  {% for letter in groups %}<a href="#{{ prefix }}{{ loop.index }}">{{ letter }}</a>{% endfor %}
 </div>
 {% for letter, rows in groups.items() %}
-<section class="poet-group" id="L{{ loop.index }}">
+<section class="poet-group" id="{{ prefix }}{{ loop.index }}">
   <h2>{{ letter }}</h2>
   <ul class="poet-list">
     {% for r in rows %}
     <li data-name="{{ r.poet|lower }} {{ (r.poet_en or '')|lower }}">
-      <a href="{{ url_for('index', poet=r.poet) }}">{% if r.poet %}<span class="hi">{{ r.poet }}</span><span class="en">{{ r.poet_en or r.poet }}</span>{% else %}Unknown poet{% endif %}</a>
+      <a href="{{ url_for('index', poet=r.poet) }}">{% if not r.poet %}Unknown poet{% elif script == 'en' %}{{ r.poet_en or r.poet }}{% else %}{{ r.poet }}{% endif %}</a>
       <span class="count">{{ r.n }}</span>{% if r.favs %}<span class="count fav">★ {{ r.favs }}</span>{% endif %}
     </li>
     {% endfor %}
   </ul>
 </section>
 {% endfor %}
+</div>
+{% endmacro %}
+{% block content %}
+<h1>Poets <small class="muted">({{ count }})</small></h1>
+<input type="search" id="poet-filter" class="filter-box" placeholder="Filter poets…" autofocus>
+
+{% if not groups %}<p class="muted">No poems yet.</p>{% endif %}
+{{ listing(groups, 'hi', 'L') }}
+{{ listing(groups_en, 'en', 'E') }}
 {% endblock %}

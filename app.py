@@ -573,12 +573,22 @@ def poets():
         "SELECT poet, MAX(poet_en) AS poet_en, COUNT(*) AS n, SUM(favorite) AS favs"
         " FROM poems GROUP BY poet ORDER BY poet = '', poet"
     ).fetchall()
-    groups = {}
-    for r in rows:
-        name = r["poet"]
-        letter = unicodedata.normalize("NFD", name)[:1].upper() if name else "?"
-        groups.setdefault(letter, []).append(r)
-    return render_template("poets.html", groups=groups, count=len(rows))
+    def initial(name):  # first letter, skipping quotes etc.: 'Ana' Qasmi -> A
+        for ch in unicodedata.normalize("NFD", name or ""):
+            if ch.isalpha():
+                return ch.upper()
+        return "?"
+
+    def by_name(field):
+        return lambda r: (not r["poet"], (r[field] or "").lstrip("'\"‘’“” ").casefold())
+
+    groups, groups_en = {}, {}
+    for r in sorted(rows, key=by_name("poet")):
+        groups.setdefault(initial(r["poet"]), []).append(r)
+    for r in sorted(rows, key=by_name("poet_en")):
+        groups_en.setdefault(initial(r["poet_en"] or r["poet"]), []).append(r)
+    groups = dict(sorted(groups.items(), key=lambda kv: (kv[0] == "?", kv[0])))
+    return render_template("poets.html", groups=groups, groups_en=groups_en, count=len(rows))
 
 
 @app.route("/tags")
