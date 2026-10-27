@@ -1,0 +1,11 @@
+# Weekly trigger for offsite-backup.service (Sundays 03:00; runs at next boot if missed).
+[Unit]
+Description=Weekly off-server backup to OneDrive
+
+[Timer]
+OnCalendar=Sun *-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target

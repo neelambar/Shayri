@@ -31,6 +31,8 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
 Database: `/var/lib/shayri/shayri.db` (set by `SHAYRI_DB`).
 Backups: `deploy/backup.sh` (add to cron), or the "Backup (JSON)" link at the bottom of the home page.
 
+Whole server (Shayri + Kundli + Caddy): weekly OneDrive backup and step-by-step restore on a new machine in [deploy/SERVER.md](deploy/SERVER.md).
+
 ## Bulk import from Excel
 For an .xlsx or .csv file with columns `POET`, `TITLE`, `TEXT`: the HTML in TEXT becomes plain lines with real stanza breaks, `<sup>` footnote markers become superscript digits (tap to see the meaning), a `शब्दार्थ:` glossary moves to notes, ` / poet` is stripped from titles, scraped web pages and duplicates are skipped:
 

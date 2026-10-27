@@ -1,0 +1,11 @@
+# Runs deploy/offsite-backup.sh once; triggered weekly by offsite-backup.timer.
+# Install: see "Weekly backup" in deploy/SERVER.md
+[Unit]
+Description=Off-server backup of Shayri/Kundli data to OneDrive
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/home/ubuntu/Shayri/deploy/offsite-backup.sh
