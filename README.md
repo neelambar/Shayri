@@ -24,8 +24,8 @@ A personal collection of Hindi poems: Flask + SQLite (FTS5 full-text search), se
 ## Deploy
     sudo cp deploy/shayri.service /etc/systemd/system/
     sudo systemctl daemon-reload && sudo systemctl enable --now shayri
-    caddy hash-password               # paste hash into deploy/Caddyfile.snippet
-    # append the snippet to /etc/caddy/Caddyfile, then
+    # append deploy/Caddyfile.snippet to /etc/caddy/Caddyfile, then put the output of
+    caddy hash-password               # in place of the placeholder there (never in the repo)
     sudo systemctl reload caddy
 
 Database: `/var/lib/shayri/shayri.db` (set by `SHAYRI_DB`).
