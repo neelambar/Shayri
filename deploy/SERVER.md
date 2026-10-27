@@ -17,7 +17,7 @@ Internet ──► Caddy (:80/:443, HTTPS + basic auth) ──┬─ kundli.nila
 | Kundli database | `/var/lib/kundli/kundli.db` | OneDrive backup |
 | Caddy config (domains, password hash) | `/etc/caddy/Caddyfile` | OneDrive backup |
 | systemd units as running live | `/etc/systemd/system/{shayri,kundli}.service` | OneDrive backup |
-| Raw import spreadsheet | `~/Shayri/poems_raw.xlsx` | OneDrive backup |
+| Import spreadsheets (not in git) | `~/Shayri/*.xlsx` (`poems.xlsx`, `poems_raw.xlsx`) | OneDrive backup |
 
 ## Software needed
 
@@ -37,7 +37,7 @@ Open ports **80** and **443** to the internet (and 22 for SSH). Nothing else nee
 `deploy/offsite-backup.sh` runs every Sunday at 03:00 (systemd timer, catches up after a missed run). It:
 
 1. takes consistent snapshots of both SQLite databases and gzips them,
-2. copies the secret key, Caddyfile, live service units and `poems_raw.xlsx`,
+2. copies the secret key, Caddyfile, live service units and the import spreadsheets (`~/Shayri/*.xlsx`),
 3. writes `MANIFEST.txt` with the date and the git commit of each repo,
 4. uploads it all to `OneDrive/ServerBackups/<YYYY-MM-DD>/`,
 5. deletes all but the newest **3** dated folders.
@@ -105,7 +105,7 @@ git clone https://github.com/neelambar/Shayri.git
 git clone https://github.com/neelambar/Kundli.git
 python3 -m venv Shayri/.venv && Shayri/.venv/bin/pip install -r Shayri/requirements.txt
 python3 -m venv Kundli/.venv && Kundli/.venv/bin/pip install -r Kundli/requirements-server.txt
-cp ~/restore/poems_raw.xlsx ~/Shayri/ 2>/dev/null || true
+cp ~/restore/*.xlsx ~/Shayri/ 2>/dev/null || true
 ```
 
 **6. Put the data in place:**

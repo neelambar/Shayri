@@ -19,7 +19,7 @@ snapshot /var/lib/kundli/kundli.db "$STAGE/kundli.db"
 gzip "$STAGE"/*.db
 cp /var/lib/shayri/.shayri_secret "$STAGE/shayri_secret"
 cp /etc/caddy/Caddyfile /etc/systemd/system/shayri.service /etc/systemd/system/kundli.service "$STAGE/"
-[ -f /home/ubuntu/Shayri/poems_raw.xlsx ] && cp /home/ubuntu/Shayri/poems_raw.xlsx "$STAGE/"
+cp /home/ubuntu/Shayri/*.xlsx "$STAGE/" 2>/dev/null || true   # import spreadsheets (kept out of git)
 {
     echo "Backup taken $(date -Is) on $(hostname)"
     for repo in /home/ubuntu/Shayri /home/ubuntu/Kundli; do
